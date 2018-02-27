@@ -358,10 +358,15 @@ func (lbc *LoadBalancerController) syncEndp(task Task) {
 				continue
 			}
 			glog.V(3).Infof("Updating Endpoints for %v/%v", ing.Name, ing.Namespace)
-			lbc.cnf.UpdateEndpoints(ingEx)
+			err = lbc.cnf.UpdateEndpoints(ingEx)
 			if err != nil {
 				glog.Errorf("Error updating endpoints for %v/%v: %v", ing.Namespace, ing.Name, err)
 			}
+		}
+
+		err = lbc.cnf.ReloadNginx()
+		if err != nil {
+			glog.Errorf("Error reloading NGINX when updating endpoints: %v", err)
 		}
 	}
 }
